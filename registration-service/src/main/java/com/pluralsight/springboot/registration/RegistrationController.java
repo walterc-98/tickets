@@ -1,6 +1,7 @@
 package com.pluralsight.springboot.registration;
 
 import com.pluralsight.springboot.events.Event;
+import com.pluralsight.springboot.events.EventsClient;
 import com.pluralsight.springboot.events.Product;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -14,17 +15,19 @@ import java.util.UUID;
 @RequestMapping(path = "/registrations")
 public class RegistrationController {
 
-    private final WebClient webClient;
+    //private final WebClient webClient;
+    private final EventsClient eventsClient;
     private final RegistrationRepository registrationRepository;
 
-    public RegistrationController(WebClient webClient, RegistrationRepository registrationRepository) {
-        this.webClient = webClient;
+    public RegistrationController(EventsClient eventsClient, RegistrationRepository registrationRepository) {
+        //this.webClient = webClient;
+        this.eventsClient = eventsClient;
         this.registrationRepository = registrationRepository;
     }
 
     @PostMapping
     public Registration create(@RequestBody Registration registration) {
-        Product product = webClient.get()
+        /*Product product = webClient.get()
                 .uri("/products/{id}",registration.productId())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
@@ -35,7 +38,9 @@ public class RegistrationController {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(Event.class)
-                .block();
+                .block(); */
+        Product product = eventsClient.getProductById(registration.productId());
+        Event event = eventsClient.getEventById(product.eventId());
 
         String ticketCode = UUID.randomUUID().toString();
 
